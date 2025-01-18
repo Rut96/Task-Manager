@@ -4,6 +4,7 @@ export interface IBoardModel extends Document {
     name: string;
     workspaceId: ObjectId;
     columns: {
+        _id: ObjectId;
         name: string;
         order: number;
     }[];
@@ -25,6 +26,11 @@ export const BoardSchema = new Schema<IBoardModel>({
         required: true
     },
     columns: [{
+        _id: {
+            type: mongoose.Schema.Types.ObjectId,
+            default: () => new mongoose.Types.ObjectId(),
+            required: true
+        },
         name: {
             type: String,
             required: true,

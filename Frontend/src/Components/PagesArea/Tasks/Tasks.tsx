@@ -1,4 +1,3 @@
-// Tasks.tsx
 import { useEffect, useState } from "react";
 import "./Tasks.css";
 import { TaskModel } from "../../../Models/TaskModel";
@@ -6,22 +5,23 @@ import { taskService } from "../../../Services/TaskService";
 
 interface TasksProps {
     boardId: string;
-    columnName: string;
+    columnId: string;
 }
 
-export function Tasks({ boardId, columnName }: TasksProps): JSX.Element {
+export function Tasks({ boardId, columnId }: TasksProps): JSX.Element {
     const [tasks, setTasks] = useState<TaskModel[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        async function fetchTasks() {
+        (async () => {
             try {
                 setLoading(true);
-                const fetchedTasks = await taskService.getTasksByBoard(boardId);
-                // Filter tasks for this specific column
-                const columnTasks = fetchedTasks.filter(task => task.status.toLowerCase() === columnName.toLowerCase());
-                setTasks(columnTasks);
+                console.log("Board id: " + boardId);
+                console.log("Column id: " + columnId);
+                const fetchedTasks = await taskService.getTasksByColumn(boardId, columnId);
+                console.log(fetchedTasks);
+                setTasks(fetchedTasks);
                 setError(null);
             } catch (err) {
                 console.error("Error fetching tasks:", err);
@@ -29,12 +29,8 @@ export function Tasks({ boardId, columnName }: TasksProps): JSX.Element {
             } finally {
                 setLoading(false);
             }
-        }
-
-        if (boardId) {
-            fetchTasks();
-        }
-    }, [boardId, columnName]);
+        })();
+    }, [boardId, columnId]);
 
     if (loading) {
         return <div className="tasks-loading">Loading tasks...</div>;

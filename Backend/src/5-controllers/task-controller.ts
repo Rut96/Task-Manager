@@ -8,6 +8,7 @@ class TaskController {
         this.router.get("/tasks", this.getAllTasks);
         this.router.get("/tasks/:id", this.getOneTask);
         this.router.get("/boards/:boardId/tasks", this.getTasksByBoard);
+        this.router.get("/boards/:boardId/columns/:columnId/tasks", this.getTasksByColumn); 
         this.router.post("/tasks", this.addTask);
         this.router.put("/tasks/:id", this.updateTask);
         this.router.delete("/tasks/:id", this.deleteTask);
@@ -49,6 +50,17 @@ class TaskController {
         }
     }
 
+    private async getTasksByColumn(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { boardId, columnId } = req.params;
+            const tasks = await taskService.getTasksByColumn(boardId, columnId);
+            res.json(tasks);
+        }
+        catch (err: any) {
+            next(err);
+        }
+    }
+
     private async addTask(req: Request, res: Response, next: NextFunction) {
         try {
             const task = req.body;
@@ -65,6 +77,18 @@ class TaskController {
             const id = req.params.id;
             const task = req.body;
             const updatedTask = await taskService.updateTask(id, task);
+            res.json(updatedTask);
+        }
+        catch (err: any) {
+            next(err);
+        }
+    }
+
+    private async updateStatus(req: Request, res: Response, next: NextFunction) {
+        try {
+            const id = req.params.id;
+            const { columnId } = req.body; // This extracts columnId from the request body
+            const updatedTask = await taskService.updateStatus(id, columnId);
             res.json(updatedTask);
         }
         catch (err: any) {
@@ -106,17 +130,7 @@ class TaskController {
         }
     }
 
-    private async updateStatus(req: Request, res: Response, next: NextFunction) {
-        try {
-            const id = req.params.id;
-            const { status } = req.body;
-            const updatedTask = await taskService.updateStatus(id, status);
-            res.json(updatedTask);
-        }
-        catch (err: any) {
-            next(err);
-        }
-    }
+
 }
 
 export const taskController = new TaskController();

@@ -1,4 +1,5 @@
 interface Column {
+    _id: string;
     name: string;
     order: number;
     color?: string; 

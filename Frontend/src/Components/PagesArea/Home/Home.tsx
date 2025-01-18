@@ -23,6 +23,7 @@ function getColumnColor(index: number): string {
 }
 
 export function Home(): JSX.Element {
+
   const [boards, setBoards] = useState<BoardModel[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -98,13 +99,13 @@ export function Home(): JSX.Element {
           <div className="boards-columns">
             {selectedBoard.columns
               .sort((a, b) => a.order - b.order)
-              .map((column, index) => (
-                <div key={index} className="column">
+              .map(column => (
+                <div key={column._id} className="column">
                   <div className="column-header">
                     <div className="column-title">
                       <div
                         className="column-color"
-                        style={{backgroundColor: getColumnColor(column.order)}}
+                        style={{ backgroundColor: getColumnColor(column.order) }}
                       />
                       <span>{column.name}</span>
                     </div>
@@ -115,7 +116,10 @@ export function Home(): JSX.Element {
                   <div className="tasks-container">
                     <div className="task-placeholder">
                       <div className="task-placeholder-content">
-                        <Tasks boardId={selectedBoard._id} columnName={column.name}/>
+                        <Tasks
+                          boardId={selectedBoard._id}
+                          columnId={column._id}
+                        />
                       </div>
                     </div>
                   </div>

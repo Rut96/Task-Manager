@@ -1,9 +1,11 @@
-import mongoose, { Document, model, ObjectId, Schema } from "mongoose";
+import mongoose, { Document, model, ObjectId, Schema, Types } from "mongoose";
+import { BoardModel } from "./board-model";
 
 export interface ITaskModel extends Document {
     title: string;
     description?: string;
-    status: 'backlog' | 'todo' | 'in_progress' | 'done';
+    // status: 'backlog' | 'todo' | 'in_progress' | 'done';
+    status: ObjectId;
     priority: 'low' | 'medium' | 'high';
     assignees: ObjectId[];
     dueDate?: Date;
@@ -28,10 +30,17 @@ export const TaskSchema = new Schema<ITaskModel>({
         trim: true
     },
     status: {
-        type: String,
-        enum: ['backlog', 'todo', 'in_progress', 'done'],
-        default: 'todo',
-        required: true
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        validate: {
+            validator: async function (columnId: Types.ObjectId) {
+                if (!this.boardId) return false;
+                const board = await BoardModel.findById(this.boardId);
+                if (!board) return false;
+                return board.columns.some(col => col._id.toString() === columnId.toString());
+            },
+            message: 'Invalid column ID for this board'
+        }
     },
     priority: {
         type: String,
