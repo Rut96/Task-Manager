@@ -2,7 +2,8 @@ export class TaskModel {
     public _id?: string;
     public title: string;
     public description?: string;
-    public status: 'backlog' | 'todo' | 'in_progress' | 'done';
+    public status: string;
+    public statusName?: string;
     public priority: 'low' | 'medium' | 'high';
     public assignees: string[] = [];
     public dueDate?: Date;

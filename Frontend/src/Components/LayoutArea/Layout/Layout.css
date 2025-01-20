@@ -3,9 +3,11 @@
     grid-template-areas:
         "sidebar header"
         "sidebar main";
-    grid-template-columns: 250px 1fr;
-    grid-template-rows: 64px 1fr;
-    min-height: 100vh;
+    /* grid-template-columns: 250px 1fr; */
+    /* grid-template-rows: 64px 1fr; */
+    grid-template-columns: 15% 85%;
+    grid-template-rows: 10% 90%;
+    /* min-height: 100vh; */
 }
 
 .Layout aside {
@@ -29,6 +31,8 @@
     background-color: #f9fafb;
     padding: 24px;
     overflow-y: auto;
+    height: calc(100vh - 130px);
+    /* overflow: hidden; */
 }
 
 /* Menu styles */

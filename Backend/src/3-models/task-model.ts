@@ -4,7 +4,6 @@ import { BoardModel } from "./board-model";
 export interface ITaskModel extends Document {
     title: string;
     description?: string;
-    // status: 'backlog' | 'todo' | 'in_progress' | 'done';
     status: ObjectId;
     priority: 'low' | 'medium' | 'high';
     assignees: ObjectId[];

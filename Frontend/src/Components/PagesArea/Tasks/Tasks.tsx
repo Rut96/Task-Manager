@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "./Tasks.css";
 import { TaskModel } from "../../../Models/TaskModel";
 import { taskService } from "../../../Services/TaskService";
+import { Calendar, MessageSquare, Paperclip, Tag } from "lucide-react";
 
 interface TasksProps {
     boardId: string;
@@ -32,6 +33,14 @@ export function Tasks({ boardId, columnId }: TasksProps): JSX.Element {
         })();
     }, [boardId, columnId]);
 
+    const formatDate = (date: Date) => {
+        return new Date(date).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric'
+        });
+    };
+
+
     if (loading) {
         return <div className="tasks-loading">Loading tasks...</div>;
     }
@@ -43,24 +52,80 @@ export function Tasks({ boardId, columnId }: TasksProps): JSX.Element {
     return (
         <div className="Tasks">
             {tasks.map(task => (
+
                 <div key={task._id} className="task-card">
-                    <h3 className="task-title">{task.title}</h3>
-                    {task.description && (
-                        <p className="task-description">{task.description}</p>
-                    )}
-                    <div className="task-metadata">
-                        <span className="task-priority">{task.priority}</span>
-                        {task.dueDate && (
-                            <span className="task-due-date">
-                                Due: {new Date(task.dueDate).toLocaleDateString()}
-                            </span>
-                        )}
-                    </div>
-                    {task.assignees.length > 0 && (
-                        <div className="task-assignees">
-                            Assignees: {task.assignees.length}
+                    {/* Labels */}
+                    {task.labels.length > 0 && (
+                        <div className="task-labels">
+                            {task.labels.map((label,index) => (
+                                <span key={index} className="task-label">
+                                    <Tag className="label-icon" />
+                                    {label}
+                                </span>
+                            ))}
                         </div>
                     )}
+
+                    {/* Title */}
+                    <h3 className="task-title">{task.title}</h3>
+
+                    {/* Description preview */}
+                    {task.description && (
+                        <p className="task-description">
+                            {task.description}
+                        </p>
+                    )}
+
+                    {/* Priority badge */}
+                    <span className={`task-priority task-priority-${task.priority}`}>
+                        {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)} Priority
+                    </span>
+
+                    {/* Bottom section */}
+                    <div className="task-footer">
+                        <div className="task-metrics">
+                            {/* Due date */}
+                            {task.dueDate && (
+                                <div className="task-metric">
+                                    <Calendar className="metric-icon" />
+                                    <span>{formatDate(task.dueDate)}</span>
+                                </div>
+                            )}
+
+                            {/* Attachments count */}
+                            {task.attachments.length > 0 && (
+                                <div className="task-metric">
+                                    <Paperclip className="metric-icon" />
+                                    <span>{task.attachments.length}</span>
+                                </div>
+                            )}
+
+                            {/* Comments count */}
+                            {task.comments.length > 0 && (
+                                <div className="task-metric">
+                                    <MessageSquare className="metric-icon" />
+                                    <span>{task.comments.length}</span>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Assignees */}
+                        {task.assignees.length > 0 && (
+                            <div className="task-assignees">
+                                {task.assignees.slice(0, 3).map((_, index) => (
+                                    <div key={index} className="assignee-avatar">
+                                        A{index + 1}
+                                    </div>
+                                ))}
+                                {task.assignees.length > 3 && (
+                                    <div className="assignee-avatar assignee-overflow">
+                                        +{task.assignees.length - 3}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
                 </div>
             ))}
             {tasks.length === 0 && (

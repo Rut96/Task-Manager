@@ -2,6 +2,8 @@ import axios from "axios";
 import { UserModel } from "../Models/UserModel";
 import { appConfig } from "../Utils/AppConfig";
 import { CredentialsModel } from "../Models/CredentialsModel";
+import { store } from "../Redux/Store";
+import { userActions } from "../Redux/UserSlice";
 
 class UserService {
 
@@ -20,23 +22,39 @@ class UserService {
     public async register(user: UserModel): Promise<UserModel> {
         const response = await axios.post(`${appConfig.usersUrl}/register`, user);
         const dbUser = response.data;
+
+        const action = userActions.initUser(dbUser);
+        store.dispatch(action);
+
         return dbUser;
     }
 
     public async login(credentials: CredentialsModel): Promise<void> {
         const response = await axios.post(`${appConfig.usersUrl}/login`, credentials);
         const dbUser = response.data;
+
+        const action = userActions.initUser(dbUser);
+        store.dispatch(action);
+
         return dbUser;
     }
 
     public async updateUser(user: UserModel): Promise<UserModel> {
         const response = await axios.put(appConfig.usersUrl + user._id, user);
         const dbUser = response.data;
+
+        const action = userActions.updateUser(dbUser);
+        store.dispatch(action);
+
+
         return dbUser;
     }
 
     public async deleteUser(userId: string): Promise<void> {
         await axios.delete(appConfig.usersUrl + userId);
+
+        const action = userActions.logoutUser();
+        store.dispatch(action);
     }
 
     public async getUserByEmail(email: UserModel): Promise<UserModel> {

@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BoardModel } from "../../../Models/BoardModel";
 import { boardService } from "../../../Services/BoardService";
-import { Grid, Layout, Plus, MoreHorizontal } from "lucide-react";
+import { Grid, Layout, Plus, MoreHorizontal, FolderPlus, ListPlus, FileEdit } from "lucide-react";
 import "./Home.css";
 import { Tasks } from "../Tasks/Tasks";
 
@@ -29,8 +29,12 @@ export function Home(): JSX.Element {
   const [error, setError] = useState<string | null>(null);
   const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
   const [selectedBoard, setSelectedBoard] = useState<BoardModel | null>(null);
+  const [addMenuToggle, setAddMenuToggle] = useState<boolean>(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
 
   useEffect(() => {
+    // Fetch data
     (async () => {
       try {
         setLoading(true);
@@ -48,12 +52,41 @@ export function Home(): JSX.Element {
         setLoading(false);
       }
     })();
+
+    // Click outside handler
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setAddMenuToggle(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+
   }, []);
 
   useEffect(() => {
     const board = boards.find(b => b._id === selectedBoardId);
     setSelectedBoard(board || null);
   }, [selectedBoardId, boards]);
+
+  // Menu toggle handler
+  const handleAddMenu = (e: React.MouseEvent) => {
+    e.stopPropagation(); // prevent unwanted clicks
+    setAddMenuToggle(!addMenuToggle);
+  };
+
+  // Menu item handlers
+  const handleAddBoard = () => {
+    // Add board logic here
+    setAddMenuToggle(false);
+  };
+
+  const handleAddTask = () => {
+    // Add task logic here
+    setAddMenuToggle(false);
+  };
 
   if (loading) {
     return (
@@ -90,42 +123,71 @@ export function Home(): JSX.Element {
                 {board.name}
               </button>
             ))}
+
+            <div className="add-item" ref={menuRef}>
+              <Plus
+                size={20}
+                onClick={handleAddMenu}
+              />
+              {addMenuToggle && (
+                <div className="add-menu">
+                  <div className="add-menu-item" onClick={handleAddBoard}>
+                    <FolderPlus size={16} />
+                    <span>New Board</span>
+                  </div>
+                  <div className="add-menu-divider" />
+                  <div className="add-menu-item" onClick={handleAddTask}>
+                    <ListPlus size={16} />
+                    <span>New Task</span>
+                  </div>
+                  <div className="add-menu-item">
+                    <FileEdit size={16} />
+                    <span>Edit Boards</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
           </div>
         </div>
       </div>
 
       {selectedBoard && (
         <div className="board-content">
+
           <div className="boards-columns">
             {selectedBoard.columns
               .sort((a, b) => a.order - b.order)
               .map(column => (
+
                 <div key={column._id} className="column">
-                  <div className="column-header">
-                    <div className="column-title">
-                      <div
-                        className="column-color"
-                        style={{ backgroundColor: getColumnColor(column.order) }}
-                      />
-                      <span>{column.name}</span>
-                    </div>
-                    <button className="column-add-button">
-                      <Plus size={16} />
-                    </button>
-                  </div>
-                  <div className="tasks-container">
-                    <div className="task-placeholder">
-                      <div className="task-placeholder-content">
-                        <Tasks
-                          boardId={selectedBoard._id}
-                          columnId={column._id}
+                  <div className="column-status">
+                    <div className="column-header">
+                      <div className="column-title">
+                        <div
+                          className="column-color"
+                          style={{ backgroundColor: getColumnColor(column.order) }}
                         />
+                        <span>{column.name}</span>
                       </div>
+                      <button className="column-add-button" >
+                        <Plus size={16} />
+                      </button>
                     </div>
                   </div>
+
+
+                  <div className="tasks-container">
+                    <Tasks
+                      boardId={selectedBoard._id}
+                      columnId={column._id}
+                    />
+                  </div>
+
                 </div>
               ))}
           </div>
+
         </div>
       )}
 
