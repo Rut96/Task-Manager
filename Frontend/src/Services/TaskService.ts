@@ -35,7 +35,7 @@ class TaskService {
 
         const action = taskActions.initTasks(response.data)
         store.dispatch(action);
-
+        console.log('Tasks', response.data);
         return response.data;
     }
 

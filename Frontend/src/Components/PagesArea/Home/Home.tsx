@@ -4,18 +4,12 @@ import { boardService } from "../../../Services/BoardService";
 import { Grid, Layout, Plus, MoreHorizontal, FolderPlus, ListPlus, FileEdit } from "lucide-react";
 import "./Home.css";
 import { Tasks } from "../Tasks/Tasks";
+import { useSelector } from "react-redux";
+import { AppState } from "../../../Redux/Store";
 
 const colorPalette = [
-  '#60A5FA', // Blue
-  '#F59E0B', // Orange
-  '#10B981', // Green
-  '#8B5CF6', // Purple
-  '#EC4899', // Pink
-  '#14B8A6', // Teal
-  '#F97316', // Dark Orange
-  '#6366F1', // Indigo
-  '#06B6D4', // Cyan
-  '#84CC16'  // Lime
+  '#60A5FA', '#F59E0B', '#10B981', '#8B5CF6', '#EC4899',
+  '#14B8A6', '#F97316', '#6366F1', '#06B6D4', '#84CC16'
 ];
 
 function getColumnColor(index: number): string {
@@ -24,7 +18,8 @@ function getColumnColor(index: number): string {
 
 export function Home(): JSX.Element {
 
-  const [boards, setBoards] = useState<BoardModel[]>([]);
+  const boards = useSelector((state: AppState) => state.boards);
+  // const [boards, setBoards] = useState<BoardModel[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
@@ -35,14 +30,17 @@ export function Home(): JSX.Element {
 
   useEffect(() => {
     // Fetch data
+    console.log(boards);
+
     (async () => {
+      
       try {
         setLoading(true);
-        const fetchedBoards = await boardService.getAllBoards();
-        setBoards(fetchedBoards);
-        if (fetchedBoards.length > 0) {
-          setSelectedBoardId(fetchedBoards[0]._id);
-          setSelectedBoard(fetchedBoards[0]);
+        await boardService.getAllBoards();
+        if (boards.length > 0) {
+          console.log('default board', boards[0])
+          setSelectedBoardId(boards[0]._id);
+          setSelectedBoard(boards[0]);
         }
         setError(null);
       } catch (err) {
@@ -53,18 +51,20 @@ export function Home(): JSX.Element {
       }
     })();
 
-    // Click outside handler
+    // Click outside handler for add menu
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setAddMenuToggle(false);
       }
     }
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
 
   }, []);
+
 
   useEffect(() => {
     const board = boards.find(b => b._id === selectedBoardId);
@@ -79,12 +79,12 @@ export function Home(): JSX.Element {
 
   // Menu item handlers
   const handleAddBoard = () => {
-    // Add board logic here
+    // board logic will be here
+    // boardService.addBoard will handle Redux update
     setAddMenuToggle(false);
   };
 
   const handleAddTask = () => {
-    // Add task logic here
     setAddMenuToggle(false);
   };
 
@@ -104,6 +104,10 @@ export function Home(): JSX.Element {
       </div>
     );
   }
+
+  const sortedColumns = selectedBoard ?
+    [...selectedBoard.columns].sort((a, b) => a.order - b.order)
+    : [];
 
   return (
     <div className="Home">
@@ -156,36 +160,37 @@ export function Home(): JSX.Element {
         <div className="board-content">
 
           <div className="boards-columns">
-            {selectedBoard.columns
-              .sort((a, b) => a.order - b.order)
-              .map(column => (
+            {/* {selectedBoard.columns
+               .sort((a, b) => a.order - b.order)
+               .map(column => ( */}
 
-                <div key={column._id} className="column">
-                  <div className="column-status">
-                    <div className="column-header">
-                      <div className="column-title">
-                        <div
-                          className="column-color"
-                          style={{ backgroundColor: getColumnColor(column.order) }}
-                        />
-                        <span>{column.name}</span>
-                      </div>
-                      <button className="column-add-button" >
-                        <Plus size={16} />
-                      </button>
+            {sortedColumns.map(column => (
+              <div key={column._id} className="column">
+                <div className="column-status">
+                  <div className="column-header">
+                    <div className="column-title">
+                      <div
+                        className="column-color"
+                        style={{ backgroundColor: getColumnColor(column.order) }}
+                      />
+                      <span>{column.name}</span>
                     </div>
+                    <button className="column-add-button" >
+                      <Plus size={16} />
+                    </button>
                   </div>
-
-
-                  <div className="tasks-container">
-                    <Tasks
-                      boardId={selectedBoard._id}
-                      columnId={column._id}
-                    />
-                  </div>
-
                 </div>
-              ))}
+
+
+                <div className="tasks-container">
+                  <Tasks
+                    boardId={selectedBoard._id}
+                    columnId={column._id}
+                  />
+                </div>
+
+              </div>
+            ))}
           </div>
 
         </div>

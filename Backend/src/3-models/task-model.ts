@@ -4,12 +4,12 @@ import { BoardModel } from "./board-model";
 export interface ITaskModel extends Document {
     title: string;
     description?: string;
-    status: ObjectId;
+    // status: ObjectId;
     priority: 'low' | 'medium' | 'high';
     assignees: ObjectId[];
     dueDate?: Date;
-    workspaceId: ObjectId;
-    boardId: ObjectId;
+    // workspaceId: ObjectId;
+    // boardId: ObjectId;
     attachments: { name: string; url: string; }[];
     comments: { userId: ObjectId; content: string; createdAt: Date; }[];
     labels: string[];
@@ -28,19 +28,19 @@ export const TaskSchema = new Schema<ITaskModel>({
         type: String,
         trim: true
     },
-    status: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        validate: {
-            validator: async function (columnId: Types.ObjectId) {
-                if (!this.boardId) return false;
-                const board = await BoardModel.findById(this.boardId);
-                if (!board) return false;
-                return board.columns.some(col => col._id.toString() === columnId.toString());
-            },
-            message: 'Invalid column ID for this board'
-        }
-    },
+    // status: {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     required: true,
+    //     validate: {
+    //         validator: async function (columnId: Types.ObjectId) {
+    //             if (!this.boardId) return false;
+    //             const board = await BoardModel.findById(this.boardId);
+    //             if (!board) return false;
+    //             return board.columns.some(col => col._id.toString() === columnId.toString());
+    //         },
+    //         message: 'Invalid column ID for this board'
+    //     }
+    // },
     priority: {
         type: String,
         enum: ['low', 'medium', 'high'],
@@ -53,16 +53,16 @@ export const TaskSchema = new Schema<ITaskModel>({
     dueDate: {
         type: Date
     },
-    workspaceId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'WorkspaceModel',
-        required: true
-    },
-    boardId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'BoardModel',
-        required: true
-    },
+    // workspaceId: {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: 'WorkspaceModel',
+    //     required: true
+    // },
+    // boardId: {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: 'BoardModel',
+    //     required: true
+    // },
     attachments: [{
         name: String,
         url: String

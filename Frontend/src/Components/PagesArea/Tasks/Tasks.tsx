@@ -3,6 +3,8 @@ import "./Tasks.css";
 import { TaskModel } from "../../../Models/TaskModel";
 import { taskService } from "../../../Services/TaskService";
 import { Calendar, MessageSquare, Paperclip, Tag } from "lucide-react";
+import { useSelector } from "react-redux";
+import { AppState } from "../../../Redux/Store";
 
 interface TasksProps {
     boardId: string;
@@ -10,7 +12,11 @@ interface TasksProps {
 }
 
 export function Tasks({ boardId, columnId }: TasksProps): JSX.Element {
-    const [tasks, setTasks] = useState<TaskModel[]>([]);
+    
+    const allTasks = useSelector((state: AppState) => state.tasks);
+    const tasks = allTasks.filter(task => task.boardId === boardId && task.status === columnId);  // Filter tasks for this column
+    
+    // const [tasks, setTasks] = useState<TaskModel[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -18,11 +24,8 @@ export function Tasks({ boardId, columnId }: TasksProps): JSX.Element {
         (async () => {
             try {
                 setLoading(true);
-                console.log("Board id: " + boardId);
-                console.log("Column id: " + columnId);
-                const fetchedTasks = await taskService.getTasksByColumn(boardId, columnId);
-                console.log(fetchedTasks);
-                setTasks(fetchedTasks);
+                // taskService will update Redux store
+                await taskService.getTasksByColumn(boardId, columnId);
                 setError(null);
             } catch (err) {
                 console.error("Error fetching tasks:", err);

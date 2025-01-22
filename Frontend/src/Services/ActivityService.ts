@@ -16,19 +16,19 @@ class ActivityService {
     }
 
     public async getActivitiesByWorkspace(workspaceId: string): Promise<ActivityService[]> {
-        const response = await axios.get(appConfig.getWorkspaceActivitiesUrl(workspaceId));
+        const response = await axios.get(`${appConfig.workspacesUrl}${workspaceId}/activities`);
         const activities = response.data;
         return activities;
     }
 
-    public async getActivitiesByBoard(workspaceId: string): Promise<ActivityService[]> {
-        const response = await axios.get(appConfig.getActivitiesByBoard(workspaceId));
+    public async getActivitiesByBoard(boardId: string): Promise<ActivityService[]> {
+        const response = await axios.get(`${appConfig.boardsUrl}${boardId}/activities`);
         const activities = response.data;
         return activities;
     }
     
     public async getActivitiesByUser(userId: string): Promise<ActivityService[]> {
-        const response = await axios.get(appConfig.getUserActivitiesUrl(userId));
+        const response = await axios.get(`${appConfig.usersUrl}${userId}/activities`);
         const activities = response.data;
         return activities;
     }

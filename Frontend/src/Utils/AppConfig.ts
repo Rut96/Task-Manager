@@ -11,21 +11,21 @@ class AppConfig {
     public readonly userRegisterUrl = this.baseUrl + "api/users/register/";
     public readonly recentActivitiesUrl = this.baseUrl + "api/activities/recent/";
 
-    public getActivitiesByBoard(boardId: string): string {
-        return `${this.baseUrl}api/boards/${boardId}/workspaceId/`;
-    }
+    // public getActivitiesByBoard(boardId: string): string {
+    //     return `${this.baseUrl}api/boards/${boardId}/workspaceId/`;
+    // }
 
-    public getWorkspaceBoardsUrl(workspaceId: string): string {
-        return `${this.baseUrl}api/workspaces/${workspaceId}/boards/`;
-    }
+    // public getWorkspaceBoardsUrl(workspaceId: string): string {
+    //     return `${this.baseUrl}api/workspaces/${workspaceId}/boards/`;
+    // }
 
-    public getWorkspaceActivitiesUrl(workspaceId: string): string {
-        return `${this.baseUrl}api/workspaces/${workspaceId}/activities/`;
-    }
+    // public getWorkspaceActivitiesUrl(workspaceId: string): string {
+    //     return `${this.baseUrl}api/workspaces/${workspaceId}/activities/`;
+    // }
 
-    public getUserActivitiesUrl(userId: string): string {
-        return `${this.baseUrl}api/users/${userId}/activities/`;
-    }
+    // public getUserActivitiesUrl(userId: string): string {
+    //     return `${this.baseUrl}api/users/${userId}/activities/`;
+    // }
 }
 
 export const appConfig = new AppConfig();

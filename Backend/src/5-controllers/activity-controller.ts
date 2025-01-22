@@ -8,7 +8,7 @@ class ActivityController {
         this.router.get("/activities", this.getAllActivities);
         this.router.get("/activities/recent", this.getRecentActivities);
         this.router.get("/workspaces/:workspaceId/activities", this.getActivitiesByWorkspace);
-        this.router.get("/boards/:boardId/workspaceId", this.getActivitiesByBoard);
+        this.router.get("/boards/:boardId/activities", this.getActivitiesByBoard);
         this.router.get("/users/:userId/activities", this.getActivitiesByUser);
     }
 

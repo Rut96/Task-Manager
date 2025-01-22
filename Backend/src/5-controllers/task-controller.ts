@@ -1,22 +1,23 @@
 import express, { NextFunction, Request, Response } from "express";
 import { taskService } from "../4-services/task-service";
+import { TaskModel } from "../3-models/task-model";
 
 class TaskController {
     public readonly router = express.Router();
 
     public constructor() {
+
         this.router.get("/tasks", this.getAllTasks);
         this.router.get("/tasks/:id", this.getOneTask);
-        this.router.get("/boards/:boardId/tasks", this.getTasksByBoard);
-        this.router.get("/boards/:boardId/columns/:columnId/tasks", this.getTasksByColumn); 
-        this.router.post("/tasks", this.addTask);
-        this.router.put("/tasks/:id", this.updateTask);
-        this.router.delete("/tasks/:id", this.deleteTask);
+
+        this.router.post("/boards/:boardId/columns/:columnId/tasks", this.addTaskToColumn);
+        this.router.put("/boards/:boardId/columns/:columnId/tasks/:taskId", this.updateTask);
+        this.router.delete("/boards/:boardId/columns/:columnId/tasks/:taskId", this.deleteTaskFromColumn);
         
         this.router.post("/tasks/:id/assignees", this.addAssignee);
         this.router.delete("/tasks/:id/assignees/:userId", this.removeAssignee);
-        this.router.patch("/tasks/:id/status", this.updateStatus);
     }
+
 
     private async getAllTasks(req: Request, res: Response, next: NextFunction) {
         try {
@@ -39,33 +40,13 @@ class TaskController {
         }
     }
 
-    private async getTasksByBoard(req: Request, res: Response, next: NextFunction) {
-        try {
-            const boardId = req.params.boardId;
-            const tasks = await taskService.getTasksByBoard(boardId);
-            res.json(tasks);
-        }
-        catch (err: any) {
-            next(err);
-        }
-    }
 
-    private async getTasksByColumn(req: Request, res: Response, next: NextFunction) {
+    private async addTaskToColumn(req: Request, res: Response, next: NextFunction) {
         try {
             const { boardId, columnId } = req.params;
-            const tasks = await taskService.getTasksByColumn(boardId, columnId);
-            res.json(tasks);
-        }
-        catch (err: any) {
-            next(err);
-        }
-    }
-
-    private async addTask(req: Request, res: Response, next: NextFunction) {
-        try {
-            const task = req.body;
-            const addedTask = await taskService.addTask(task);
-            res.status(201).json(addedTask);
+            const task = new TaskModel(req.body);
+            const savedTask = await taskService.addTaskToColumn(boardId, columnId, task);
+            res.json(savedTask);
         }
         catch (err: any) {
             next(err);
@@ -74,9 +55,9 @@ class TaskController {
 
     private async updateTask(req: Request, res: Response, next: NextFunction) {
         try {
-            const id = req.params.id;
+            const { boardId, columnId, taskId } = req.params;
             const task = req.body;
-            const updatedTask = await taskService.updateTask(id, task);
+            const updatedTask = await taskService.updateTask(boardId, columnId, taskId, task);
             res.json(updatedTask);
         }
         catch (err: any) {
@@ -84,22 +65,10 @@ class TaskController {
         }
     }
 
-    private async updateStatus(req: Request, res: Response, next: NextFunction) {
+    private async deleteTaskFromColumn(req: Request, res: Response, next: NextFunction) {
         try {
-            const id = req.params.id;
-            const { columnId } = req.body; // This extracts columnId from the request body
-            const updatedTask = await taskService.updateStatus(id, columnId);
-            res.json(updatedTask);
-        }
-        catch (err: any) {
-            next(err);
-        }
-    }
-
-    private async deleteTask(req: Request, res: Response, next: NextFunction) {
-        try {
-            const id = req.params.id;
-            await taskService.deleteTask(id);
+            const { boardId, columnId, taskId } = req.params;
+            await taskService.deleteTaskFromColumn(boardId, columnId, taskId);
             res.sendStatus(204);
         }
         catch (err: any) {

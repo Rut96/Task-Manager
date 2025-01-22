@@ -11,7 +11,11 @@ class BoardController {
         this.router.post("/boards", this.addBoard);
         this.router.put("/boards/:id", this.updateBoard);
         this.router.delete("/boards/:id", this.deleteBoard);
+
         this.router.patch("/boards/:id/columns", this.updateColumns);
+
+        this.router.get("/boards/:boardId/columns/:columnId/tasks", this.getColumnTasks);
+        this.router.get("/boards/:boardId/tasks", this.getAllBoardTasks);
     }
 
     private async getAllBoards(req: Request, res: Response, next: NextFunction) {
@@ -86,6 +90,28 @@ class BoardController {
             const { columns } = req.body;
             const updatedBoard = await boardService.updateColumns(id, columns);
             res.json(updatedBoard);
+        }
+        catch (err: any) {
+            next(err);
+        }
+    }
+
+    private async getColumnTasks(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { boardId, columnId } = req.params;
+            const tasks = await boardService.getColumnTasks(boardId, columnId);
+            res.json(tasks);
+        }
+        catch (err: any) {
+            next(err);
+        }
+    }
+    
+    private async getAllBoardTasks(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { boardId } = req.params;
+            const tasks = await boardService.getAllBoardTasks(boardId);
+            res.json(tasks);
         }
         catch (err: any) {
             next(err);
